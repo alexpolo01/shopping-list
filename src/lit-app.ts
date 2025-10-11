@@ -34,7 +34,7 @@ export class LitApp extends LitElement {
             }
             .main-content {
                 display: grid;
-                grid-template-columns: 60% 40%;
+                grid-template-columns: 60% 39%;
                 gap: 16px;
                 align-items: start;
             }
