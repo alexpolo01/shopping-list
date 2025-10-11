@@ -86,14 +86,12 @@ export class LitApp extends LitElement {
     });
 
     private handleSearch(e: CustomEvent<string>) {
-        console.log('test2=',e.detail)
         this.searchTerm = e.detail;
         this.isLoading = true;
     }
 
     private handleAddToCart(e: CustomEvent<string>) {
         const incoming = JSON.parse(e.detail)?.ingredients ?? [];
-        console.log(JSON.parse(e.detail))
         if (!incoming.length) return;
         for (const ing of incoming) {
             const value = (ing || '').trim();
