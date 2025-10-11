@@ -4,6 +4,7 @@ import { virtual, useEffect } from '@pionjs/pion';
 import './search-bar.ts';
 import './list-item.ts';
 import './shopping-list.ts';
+import './components/toast-message.ts';
 
 const BASE_URL = "https://www.thecocktaildb.com/api/json/v1/1/search.php?s=";
 
@@ -54,10 +55,10 @@ export class LitApp extends LitElement {
         `
     ];
 
-    @property({type: String})   searchTerm = 'margarita';
-    @property({type: Array})    foundList : any[]= [];
+    @property({type: String})   searchTerm = '';
+    @property({type: Array})    foundList: any[] = [];
     @state()                    isLoading = false;
-    @state()                    message = '';
+    @property()                 message = '';
     @property({type: Array})    shoppingList: string[] = [];
 
     private effects = virtual(() => {
@@ -85,12 +86,13 @@ export class LitApp extends LitElement {
         }, [this.isLoading, this.searchTerm]);
     });
 
-    private handleSearch(e: CustomEvent<string>) {
+    private handleSearch = (e: CustomEvent<string>) => {
+        if(!e.detail) return;
         this.searchTerm = e.detail;
         this.isLoading = true;
-    }
+    };
 
-    private handleAddToCart(e: CustomEvent<string>) {
+    private handleAddToCart = (e: CustomEvent<string>) => {
         const incoming = JSON.parse(e.detail)?.ingredients ?? [];
         if (!incoming.length) return;
         for (const ing of incoming) {
@@ -98,13 +100,15 @@ export class LitApp extends LitElement {
             if (value) this.shoppingList = [...this.shoppingList, value];
         }
         this.shoppingList = [...new Set(this.shoppingList) as unknown as string[]];
-    }
+        this.message = 'Ingredient added to shopping list';
+    };
 
-    private removeShoppingCartItem(e: CustomEvent<number>) {
+    private removeShoppingCartItem = (e: CustomEvent<number>) => {
         const index = e.detail;
         if (index < 0 || index >= this.shoppingList.length) return;
         this.shoppingList = this.shoppingList.filter((_, i) => i !== index);
-    }
+        this.message = 'Ingredient removed from shopping list';
+    };
 
     render() {
         const filteredDrinkList = this.foundList?.length > 0 
@@ -127,7 +131,10 @@ export class LitApp extends LitElement {
                 </div>
                 <aside class="sidebar" @remove-item=${this.removeShoppingCartItem}>
                     <shopping-list .items=${this.shoppingList}></shopping-list>
-                    <p class="status">${this.message}</p>
+                    <toast-message 
+                        .message=${this.message} 
+                        .open=${!!this.message}
+                    </toast-message>
                 </aside>
             </div>
         </div>
